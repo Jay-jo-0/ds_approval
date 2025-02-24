@@ -457,6 +457,9 @@
         mailingTF: mailingTF,
         mailReceivers: mailReceivers
       };
+
+      // 디버깅 로그: 전송될 데이터 출력
+      console.log("전송할 데이터:", JSON.stringify(result));
       
       // 전송 후 데이터 JSON으로 Telegram에 보내고 창 닫기
       tg.sendData(JSON.stringify(result));
