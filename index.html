@@ -424,46 +424,41 @@
     
     // "전송" 버튼 클릭 시 모든 값을 수집하여 Telegram으로 전송 후 웹앱 창 닫기
     document.getElementById("submitButton").addEventListener("click", function() {
-      const reportTitle = reportTitleInput.value;
-      const selectedCatNum = categorySelect.value;
-      const selectedCategory = categories.find(item => item.number == selectedCatNum);
-      const selectedAnalyst = analystSelect.value;
+        const reportTitle = document.getElementById("reportTitle").value; // id 변경
+        const selectedCatNum = document.getElementById("categorySelect").value; // id 변경
+        const selectedAnalyst = document.getElementById("analystSelect").value; // id 변경
       const workerSelects = document.querySelectorAll(".worker-select");
       const workers = Array.from(workerSelects)
                         .map(select => select.value)
                         .filter(val => val.trim() !== "");
-      const capturePage = capturePageInput.value;
-      const summaryInputs = document.querySelectorAll(".summary-line");
-      const summary = Array.from(summaryInputs)
-                        .map(textarea => textarea.value.trim())
-                        .join("\n");
-      const morningMeeting = morningSelect.value;
-      const mailingTF = mailingSelect.value;
-      
-      const mailCheckboxes = document.querySelectorAll("#mailReceiverContainer input[type='checkbox']");
-      const mailReceivers = Array.from(mailCheckboxes)
-                            .filter(cb => cb.checked)
-                            .map(cb => cb.value)
-                            .join("\n");
-      
-      const result = {
-        reportTitle: reportTitle,
-        category: selectedCategory,
-        representativeAnalyst: selectedAnalyst,
-        actualWorkers: workers,
-        capturePage: capturePage,
-        summary: summary,
-        morningMeeting: morningMeeting,
-        mailingTF: mailingTF,
-        mailReceivers: mailReceivers
-      };
+      const capturePage = document.getElementById("capturePage").value; // id 변경
+        const summaryInputs = document.querySelectorAll(".summary-line");
+        const summary = Array.from(summaryInputs)
+                          .map(textarea => textarea.value.trim())
+                          .join("\n");
+        const morningMeeting = document.getElementById("morningSelect").value;
+        const mailingTF = document.getElementById("mailingSelect").value;
 
-      // 디버깅 로그: 전송될 데이터 출력
-      console.log("전송할 데이터:", JSON.stringify(result));
-      
-      // 전송 후 데이터 JSON으로 Telegram에 보내고 창 닫기
-      tg.sendData(JSON.stringify(result));
-      tg.close();
+        const mailCheckboxes = document.querySelectorAll("#mailReceiverContainer input[type='checkbox']");
+        const mailReceivers = Array.from(mailCheckboxes)
+                              .filter(cb => cb.checked)
+                              .map(cb => cb.value); // 리스트로 변경
+
+        const result = {
+          report_title: reportTitle,  // 키 변경
+          cat_num: selectedCatNum,     // 키 변경
+          rep: selectedAnalyst,       // 키 변경
+          workers: workers,           // 키 변경, 값은 리스트
+          capture_page: capturePage,    // 키 변경
+          summary: summary,
+          morning: morningMeeting,
+          mailingTF: mailingTF,
+          mail_receivers: mailReceivers // 키 변경, 값은 리스트
+        };
+
+        // 전송 후 데이터 JSON으로 Telegram에 보내고 창 닫기
+        tg.sendData(JSON.stringify(result)); // JSON 문자열로 전송
+        tg.close();
     });
   </script>
 </body>
