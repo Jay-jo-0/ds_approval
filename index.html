@@ -451,22 +451,34 @@
                                 .filter(cb => cb.checked)
                                 .map(cb => cb.value);
       
-      const result = {
-        report_title: reportTitle,
-        cat_num: selectedCatNum,
-        rep: selectedAnalyst,
-        workers: workers,
-        capture_page: capturePage,
-        summary: summary,
-        morning: morningMeeting,
-        mailingTF: mailingTF,
-        mail_receivers: mailReceivers
-      };
-      
-      console.log("전송할 데이터:", JSON.stringify(result));
-      tg.sendData(JSON.stringify(result));
-      tg.close();
-    });
+      try {
+          const result = {
+              report_title: document.getElementById("reportTitle").value,
+              cat_num: document.getElementById("categorySelect").value,
+              rep: document.getElementById("analystSelect").value,
+              // 실제 작업자 (worker-select 클래스)
+              workers: Array.from(document.querySelectorAll(".worker-select"))
+                        .map(select => select.value)
+                        .filter(val => val.trim() !== ""),
+              capture_page: document.getElementById("capturePage").value,
+              summary: Array.from(document.querySelectorAll(".summary-line"))
+                        .map(textarea => textarea.value.trim())
+                        .join("\n"),
+              morning: document.getElementById("morningSelect").value,
+              mailingTF: document.getElementById("mailingSelect").value,
+              mail_receivers: Array.from(document.querySelectorAll("#mailReceiverContainer input[type='checkbox']"))
+                              .filter(cb => cb.checked)
+                              .map(cb => cb.value)
+          };
+
+          console.log("전송할 데이터:", JSON.stringify(result));
+          // tg.sendData() 호출 전에 잠시 주석 처리해서 로그가 보이는지 확인합니다.
+          tg.sendData(JSON.stringify(result));
+          //tg.close(); // tg.sendData() 후 tg.close() 호출이 문제라면 이 부분을 주석 처리하고 확인해 보세요.
+      } catch (e) {
+          console.error("Error during sendData:", e);
+      }
+  });
   </script>
 </body>
 </html>
