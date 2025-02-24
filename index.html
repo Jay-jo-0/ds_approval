@@ -2,27 +2,361 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>수정하기 웹앱</title>
+  <title>최종 결과물 선택 및 수정</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    textarea { width: 100%; height: 200px; }
-    button { font-size: 16px; padding: 8px 16px; margin-top: 10px; }
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+    select, input, button, textarea { font-size: 16px; padding: 8px; margin-top: 10px; display: block; width: 100%; max-width: 500px; }
+    .section { margin-bottom: 30px; }
+    .worker-row { margin-bottom: 10px; display: flex; align-items: center; }
+    .worker-row select { flex: 1; }
+    .remove-button { margin-left: 5px; background-color: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; }
+    .summary-row { display: flex; align-items: center; margin-bottom: 5px; }
+    .summary-row input { flex: 1; }
+    .char-counter { margin-left: 10px; white-space: nowrap; }
+    .mail-receiver-item { margin-bottom: 5px; }
   </style>
 </head>
 <body>
-  <h2>수정할 내용을 입력하세요</h2>
-  <textarea id="editText" placeholder="여기에 내용을 입력하세요..."></textarea><br>
-  <button id="sendButton">전송</button>
-
+  <!-- 카테고리 선택 섹션 -->
+  <div class="section">
+    <h2>카테고리 선택</h2>
+    <p>아래 목록에서 원하는 카테고리를 선택하세요. (기본값: URL의 <code>cat_num</code> 파라미터)</p>
+    <select id="categorySelect"></select>
+  </div>
+  
+  <!-- 대표 애널리스트 선택 섹션 -->
+  <div class="section">
+    <h2>대표 애널리스트 선택</h2>
+    <p>아래 목록에서 대표 애널리스트를 선택하세요. (기본값: URL의 <code>rep</code> 파라미터; 값은 "부서\n이름" 형태)</p>
+    <select id="analystSelect"></select>
+  </div>
+  
+  <!-- 실제 작업자 선택 섹션 -->
+  <div class="section">
+    <h2>실제 작업자 선택</h2>
+    <p>실제 작업자는 대표 애널리스트와 동일한 드롭다운 형식입니다. 기본값은 URL의 <code>workers</code> 파라미터(쉼표로 구분된 "부서\n이름" 문자열) 또는 기본값으로 미리 지정됩니다.
+       각 드롭다운 옆의 "-" 버튼을 눌러 제거할 수 있고, "+" 버튼으로 새 드롭다운을 추가할 수 있습니다.</p>
+    <div id="workerContainer"></div>
+    <button id="addWorkerButton" type="button">+</button>
+  </div>
+  
+  <!-- 캡쳐 페이지 입력 섹션 -->
+  <div class="section">
+    <h2>캡쳐 페이지</h2>
+    <p>캡쳐 페이지 번호를 입력하세요. (기본값: 1)</p>
+    <input type="number" id="capturePage" value="1" min="1">
+  </div>
+  
+  <!-- 요약 수정 섹션 -->
+  <div class="section">
+    <h2>요약 수정</h2>
+    <p>생성된 요약은 세 줄로 구성되어 있습니다. 각 줄을 수정하세요. (각 줄 최대 60자; 오른쪽에 현재 입력한 문자 수 / 60이 표시됩니다.)</p>
+    <div id="summaryContainer"></div>
+  </div>
+  
+  <!-- 모닝미팅 포함 여부 섹션 -->
+  <div class="section">
+    <h2>모닝미팅 포함 여부</h2>
+    <p>모닝미팅 포함 여부를 선택하세요.</p>
+    <select id="morningSelect">
+      <option value="True">True</option>
+      <option value="False">False</option>
+    </select>
+  </div>
+  
+  <!-- 메일 발신 여부 섹션 -->
+  <div class="section">
+    <h2>메일 발신 여부</h2>
+    <p>메일 발신 여부를 선택하세요. (기본값: True)</p>
+    <select id="mailingSelect">
+      <option value="True">True</option>
+      <option value="False">False</option>
+    </select>
+  </div>
+  
+  <!-- 메일 수신자 선택 섹션 -->
+  <div class="section" id="mailReceiverSection">
+    <h2>메일 수신자 선택</h2>
+    <p>아래 목록에서 메일 수신자들을 선택하세요. 기본 선택은 "기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"입니다.</p>
+    <div id="mailReceiverContainer"></div>
+  </div>
+  
+  <button id="submitButton">전송</button>
+  
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
     
-    document.getElementById('sendButton').addEventListener('click', function() {
-      const data = document.getElementById('editText').value;
-      // 이 데이터는 봇으로 전송됩니다.
-      tg.sendData(data);
+    // URL 쿼리 파라미터에서 값을 가져오는 함수
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+    
+    // 기본값 설정
+    const defaultCatNum = parseInt(getQueryParam("cat_num")) || null;
+    const defaultRep = getQueryParam("rep") || "";
+    const defaultWorkersParam = getQueryParam("workers") || "";
+    const defaultWorkers = defaultWorkersParam 
+      ? defaultWorkersParam.split(",").map(s => s.trim()).filter(s => s !== "")
+      : ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"];
+    const defaultSummaryParam = getQueryParam("summary") || 
+      "24년 완화적인 대출환경으로 주요지역의 완연한 회복세, 수도권 선호지역의 공급부족과 금리상승/대출규제간의 힘겨루기로 상승-소강 반복\n정치지형변화로 세제강화 및 규제 확대와 같은 변수 등장, 지난 규제 강화 시기의 시장/여론 등을 볼 때 보다 제한적이고 범위의 규제 예상\n정책변화/가격레벨/최근 성과 등을 고려할 때 차선호지역 및 공급과잉 해소되는 비수도권 주요지역의 상대성과가 더 높을 수 있음";
+    const defaultSummaryLines = defaultSummaryParam.split("\n").map(line => line.trim());
+    
+    // 메일 수신자 기본값
+    const defaultMailReceivers = ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"];
+    
+    // 예제용 데이터
+    const categories = [
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (1)", number: 1},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (2)", number: 2},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (3)", number: 3},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "기업분석 (4)", number: 4},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "해외기업 투자분석 (5)", number: 5},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "상장예정기업 (6)", number: 6},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "기업뉴스 (7)", number: 7},
+      {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "Weekly (9)", number: 9},
+      {dept: "기업리서치부", subcategory: "Morning Meeting Brief", text: "Morning Meeting Brief (13)", number: 13},
+      {dept: "마켓전략실", subcategory: "Daishin's View", text: "Daishin's View (19)", number: 19},
+      {dept: "마켓전략실", subcategory: "Macro 전략", text: "경제전망 (21)", number: 21},
+      {dept: "마켓전략실", subcategory: "Macro 전략", text: "환율전망 (22)", number: 22},
+      {dept: "마켓전략실", subcategory: "Macro 전략", text: "채권/크레딧 (23)", number: 23},
+      {dept: "마켓전략실", subcategory: "Macro 전략", text: "자산배분 (24)", number: 24},
+      {dept: "마켓전략실", subcategory: "Macro 전략", text: "이슈분석 (25)", number: 25},
+      {dept: "마켓전략실", subcategory: "국내 투자전략", text: "시장전략 (27)", number: 27},
+      {dept: "마켓전략실", subcategory: "국내 투자전략", text: "퀀트분석 (28)", number: 28},
+      {dept: "마켓전략실", subcategory: "국내 투자전략", text: "이슈분석 (30)", number: 30},
+      {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "시장전략 (32)", number: 32},
+      {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "원자재 (33)", number: 33},
+      {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "부동산 (34)", number: 34},
+      {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "Global ETF (35)", number: 35},
+      {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "이슈분석 (39)", number: 39}
+    ];
+    
+    const dep_n_name = {
+      "기업리서치부": [
+        "권용수", "김귀연", "김수아", "김유진", "김지혜", "김회재",
+        "박강호", "박혜진", "서지원", "신석환", "양지환", "오지현",
+        "왕필환", "위정원", "유정현", "이소연", "이지니", "이지윤",
+        "이지은", "이채리", "이태환", "이희영", "임수진", "정다영",
+        "정한솔", "홍성원"
+      ],
+      "FICC리서치부": [
+        "박초화", "박현정", "서영재", "이경민", "이경연", "이예지",
+        "이주원", "이하연", "정해창", "조승빈", "조재운", "최진영", "하원준"
+      ],
+      "장기전략리서치부": [
+        "공동락", "김다은", "나미선", "문건우", "문남중", "박세라",
+        "박장욱", "배상영", "이혜진", "한송협", "허민호"
+      ]
+    };
+    
+    // 메일 수신자 체크박스 데이터
+    const mail_factor = {
+      '기관공통 수신자': 'cb_client', 
+      '기업 수신자': 'cb_corporate',
+      '기타공통 수신자': 'cb_etc',
+      '내 인물 수신자': 'cb_my',
+      '대신직원 수신자': 'cb_daishin',
+      '리서치센터 수신자': 'cb_daishinReserach',
+      '[개별자료]산업 및 기업': 'cb_industryNcompany',
+      '[개별자료]투자전략': 'cb_investmentStrategy',
+      '[개별자료] MMB(투자전략 자료 or MMB 단독 자료일 경우 선택': 'cb_MMB'
+    };
+    
+    // 카테고리 드롭다운 구성
+    const categorySelect = document.getElementById("categorySelect");
+    categories.forEach(function(item) {
+      const option = document.createElement("option");
+      option.value = item.number;
+      option.text = `${item.dept} - ${item.subcategory}: ${item.text}`;
+      categorySelect.appendChild(option);
+    });
+    if (defaultCatNum !== null) {
+      categorySelect.value = defaultCatNum;
+    }
+    
+    // 대표 애널리스트 드롭다운 구성
+    const analystSelect = document.getElementById("analystSelect");
+    for (const dept in dep_n_name) {
+      const optgroup = document.createElement("optgroup");
+      optgroup.label = dept;
+      dep_n_name[dept].forEach(function(name) {
+        const option = document.createElement("option");
+        option.value = `${dept}\n${name}`;
+        option.text = name;
+        optgroup.appendChild(option);
+      });
+      analystSelect.appendChild(optgroup);
+    }
+    if (defaultRep !== "") {
+      analystSelect.value = defaultRep;
+    }
+    
+    // 실제 작업자 섹션: 드롭다운을 동적으로 추가할 컨테이너
+    const workerContainer = document.getElementById("workerContainer");
+    function addWorkerSelect(value) {
+      const row = document.createElement("div");
+      row.className = "worker-row";
+      
+      const select = document.createElement("select");
+      select.className = "worker-select";
+      for (const dept in dep_n_name) {
+        const optgroup = document.createElement("optgroup");
+        optgroup.label = dept;
+        dep_n_name[dept].forEach(function(name) {
+          const option = document.createElement("option");
+          option.value = `${dept}\n${name}`;
+          option.text = name;
+          optgroup.appendChild(option);
+        });
+        select.appendChild(optgroup);
+      }
+      if (value) {
+        select.value = value;
+      }
+      
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-button";
+      removeBtn.textContent = "-";
+      removeBtn.addEventListener("click", function() {
+        workerContainer.removeChild(row);
+      });
+      
+      row.appendChild(select);
+      row.appendChild(removeBtn);
+      workerContainer.appendChild(row);
+    }
+    
+    if (defaultWorkers.length > 0) {
+      defaultWorkers.forEach(function(worker) {
+        addWorkerSelect(worker);
+      });
+    } else {
+      addWorkerSelect("");
+    }
+    
+    document.getElementById("addWorkerButton").addEventListener("click", function() {
+      addWorkerSelect("");
+    });
+    
+    // 캡쳐 페이지 입력 (기본 1)
+    const capturePageInput = document.getElementById("capturePage");
+    
+    // 요약 입력 섹션: 세 줄 입력란 생성 및 문자 카운터 추가
+    const summaryContainer = document.getElementById("summaryContainer");
+    defaultSummaryLines.forEach(function(line, index) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "summary-row";
+      
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "summary-line";
+      input.maxLength = 60;
+      input.value = line;
+      input.placeholder = `요약 ${index + 1}번째 줄 (최대 60자)`;
+      
+      const counter = document.createElement("span");
+      counter.className = "char-counter";
+      function updateCounter() {
+        const len = input.value.length;
+        counter.textContent = `${len}/60`;
+      }
+      updateCounter();
+      input.addEventListener("input", updateCounter);
+      
+      wrapper.appendChild(input);
+      wrapper.appendChild(counter);
+      summaryContainer.appendChild(wrapper);
+    });
+    
+    // 모닝미팅 여부 선택: 기본 True
+    const morningSelect = document.getElementById("morningSelect");
+    morningSelect.value = "True";
+    
+    // 메일 발신 여부 선택: 기본 True
+    const mailingSelect = document.getElementById("mailingSelect");
+    mailingSelect.value = "True";
+    
+    // 메일 수신자 섹션 구성: 체크박스를 생성할 컨테이너
+    const mailReceiverContainer = document.getElementById("mailReceiverContainer");
+    // 함수: 각 체크박스 생성
+    function createMailReceiverCheckbox(label, defaultChecked) {
+      const container = document.createElement("div");
+      container.className = "mail-receiver-item";
+      
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = mail_factor[label]; // mail_factor의 값 사용
+      checkbox.value = label;
+      if (defaultChecked) checkbox.checked = true;
+      
+      const labelElem = document.createElement("label");
+      labelElem.htmlFor = mail_factor[label];
+      labelElem.textContent = label;
+      
+      container.appendChild(checkbox);
+      container.appendChild(labelElem);
+      mailReceiverContainer.appendChild(container);
+    }
+    
+    // 메일 수신자 전체 목록 생성
+    for (const key in mail_factor) {
+      // 기본으로 선택할 항목: "기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"
+      const isDefault = ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"].includes(key);
+      createMailReceiverCheckbox(key, isDefault);
+    }
+    
+    // 메일 발신 여부에 따라 메일 수신자 섹션 보이기/숨기기
+    function updateMailReceiverVisibility() {
+      if (mailingSelect.value === "True") {
+        document.getElementById("mailReceiverSection").style.display = "block";
+      } else {
+        document.getElementById("mailReceiverSection").style.display = "none";
+      }
+    }
+    mailingSelect.addEventListener("change", updateMailReceiverVisibility);
+    updateMailReceiverVisibility();
+    
+    // "전송" 버튼 클릭 시 모든 섹션의 값을 Telegram으로 전송
+    document.getElementById("submitButton").addEventListener("click", function() {
+      const selectedCatNum = categorySelect.value;
+      const selectedCategory = categories.find(item => item.number == selectedCatNum);
+      const selectedAnalyst = analystSelect.value;
+      const workerSelects = document.querySelectorAll(".worker-select");
+      const workers = Array.from(workerSelects)
+                        .map(select => select.value)
+                        .filter(val => val.trim() !== "");
+      const capturePage = capturePageInput.value;
+      const summaryInputs = document.querySelectorAll(".summary-line");
+      const summary = Array.from(summaryInputs)
+                        .map(input => input.value.trim())
+                        .join("\n");
+      const morningMeeting = morningSelect.value;
+      const mailingTF = mailingSelect.value;
+      
+      // 메일 수신자: 체크된 체크박스의 값들을 newline으로 연결
+      const mailCheckboxes = document.querySelectorAll("#mailReceiverContainer input[type='checkbox']");
+      const mailReceivers = Array.from(mailCheckboxes)
+                            .filter(cb => cb.checked)
+                            .map(cb => cb.value)
+                            .join("\n");
+      
+      const result = {
+        category: selectedCategory,
+        representativeAnalyst: selectedAnalyst,
+        actualWorkers: workers,
+        capturePage: capturePage,
+        summary: summary,
+        morningMeeting: morningMeeting,
+        mailingTF: mailingTF,
+        mailReceivers: mailReceivers
+      };
+      
+      tg.sendData(JSON.stringify(result));
     });
   </script>
 </body>
