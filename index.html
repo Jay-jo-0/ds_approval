@@ -70,10 +70,13 @@
       align-items: center;
       margin-bottom: 5px;
     }
-    .summary-row input {
-      flex: 1;
-      font-size: 0.9em;
+    .summary-row textarea { /* textarea 스타일 */
+        flex: 1;
+        font-size: 0.9em;
+        resize: vertical; /* 세로 크기 조절 허용 */
+        min-height: 60px; /* 최소 높이 */
     }
+
     .char-counter {
       margin-left: 8px;
       font-size: 0.8em;
@@ -83,6 +86,16 @@
     .mail-receiver-item {
       margin-bottom: 5px;
       font-size: 0.9em;
+    }
+
+    .mail-receiver-item label { /* 체크박스와 레이블 묶음 */
+        display: flex;
+        align-items: center; /* 수직 중앙 정렬 */
+    }
+      .mail-receiver-item input[type="checkbox"] {
+        /* 체크박스 스타일 (선택 사항) */
+        margin-right: 5px; /* 체크박스와 텍스트 간 간격 */
+        width: auto; /* 체크박스 너비 자동 */
     }
 
     /* 미디어 쿼리: 화면 폭 400px 이하에서는 폰트 크기 약간 축소 */
@@ -100,75 +113,75 @@
   <div class="section">
     <h2>보고서 제목</h2>
     <p>보고서 제목을 입력하세요. (기본값: URL의 <code>report_title</code> 파라미터)</p>
-    <input type="text" id="reportTitle" placeholder="보고서 제목">
+    <textarea id="reportTitle" placeholder="보고서 제목"></textarea> <!-- input 대신 textarea -->
   </div>
 
   <!-- 카테고리 선택 섹션 -->
-  <div class="section">
-    <h2>카테고리 선택</h2>
-    <p>원하는 카테고리를 선택하세요. (기본값: URL의 <code>cat_num</code> 파라미터)</p>
-    <select id="categorySelect"></select>
-  </div>
-  
-  <!-- 대표 애널리스트 선택 섹션 -->
-  <div class="section">
-    <h2>대표 애널리스트 선택</h2>
-    <p>대표 애널리스트를 선택하세요. (기본값: URL의 <code>rep</code> 파라미터; 값은 "부서\n이름" 형태)</p>
-    <select id="analystSelect"></select>
-  </div>
-  
-  <!-- 실제 작업자 선택 섹션 -->
-  <div class="section">
-    <h2>실제 작업자 선택</h2>
-    <p>실제 작업자는 부서와 애널리스트가 연결된 값입니다. 기본값은 URL의 <code>workers</code> 파라미터(쉼표로 구분된 "부서\n이름" 문자열) 또는 기본값으로 지정됩니다.
-       각 드롭다운 옆의 "-" 버튼으로 제거하고, "+" 버튼으로 새 드롭다운을 추가할 수 있습니다.</p>
-    <div id="workerContainer"></div>
-    <button id="addWorkerButton" type="button">+</button>
-  </div>
-  
-  <!-- 캡쳐 페이지 입력 섹션 -->
-  <div class="section">
-    <h2>캡쳐 페이지</h2>
-    <p>캡쳐 페이지 번호를 입력하세요. (기본값: URL의 <code>capture_page</code>, 없으면 1)</p>
-    <input type="number" id="capturePage" value="1" min="1">
-  </div>
-  
+    <div class="section">
+        <h2>카테고리 선택</h2>
+        <p>원하는 카테고리를 선택하세요.  (기본값: URL의 `cat_num` 파라미터)</p>
+        <select id="categorySelect"></select>
+    </div>
+
+    <!-- 대표 애널리스트 선택 섹션 -->
+    <div class="section">
+        <h2>대표 애널리스트 선택</h2>
+        <p>대표 애널리스트를 선택하세요.  (기본값: URL의 `rep` 파라미터; 값은 "부서\n이름" 형태)</p>
+        <select id="analystSelect"></select>
+    </div>
+
+    <!-- 실제 작업자 선택 섹션 -->
+    <div class="section">
+        <h2>실제 작업자 선택</h2>
+        <p>실제 작업자는 부서와 애널리스트가 연결된 값입니다. 기본값은 URL의 `workers` 파라미터(쉼표로 구분된 "부서\n이름" 문자열) 또는 기본값으로 지정됩니다.
+        각 드롭다운 옆의 "-" 버튼으로 제거하고, "+" 버튼으로 새 드롭다운을 추가할 수 있습니다.</p>
+        <div id="workerContainer"></div>
+        <button id="addWorkerButton" type="button">+</button>
+    </div>
+
+    <!-- 캡쳐 페이지 입력 섹션 -->
+    <div class="section">
+        <h2>캡쳐 페이지</h2>
+        <p>캡쳐 페이지 번호를 입력하세요. (기본값: URL의 `capture_page`, 없으면 1)</p>
+        <input type="number" id="capturePage" value="1" min="1">
+    </div>
+
   <!-- 요약 수정 섹션 -->
-  <div class="section">
+<div class="section">
     <h2>요약 수정</h2>
     <p>요약은 세 줄로 구성됩니다. 각 줄을 수정하세요. (각 줄 최대 60자; 오른쪽에 현재 입력한 문자 수/60 표시)</p>
     <div id="summaryContainer"></div>
-  </div>
-  
+</div>
+
   <!-- 모닝미팅 포함 여부 섹션 -->
-  <div class="section">
-    <h2>모닝미팅 포함 여부</h2>
-    <p>모닝미팅 포함 여부를 선택하세요. (기본값: URL의 <code>morning</code> 파라미터, 없으면 True)</p>
-    <select id="morningSelect">
-      <option value="True">True</option>
-      <option value="False">False</option>
-    </select>
-  </div>
-  
-  <!-- 메일 발신 여부 섹션 -->
-  <div class="section">
-    <h2>메일 발신 여부</h2>
-    <p>메일 발신 여부를 선택하세요. (기본값: URL의 <code>mailingTF</code> 파라미터, 없으면 True)</p>
-    <select id="mailingSelect">
-      <option value="True">True</option>
-      <option value="False">False</option>
-    </select>
-  </div>
-  
-  <!-- 메일 수신자 선택 섹션 -->
-  <div class="section" id="mailReceiverSection">
-    <h2>메일 수신자 선택</h2>
-    <p>메일 수신자들을 선택하세요. 기본 선택은 URL의 <code>mail_receivers</code> 파라미터 또는 기본값 "기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"입니다.</p>
-    <div id="mailReceiverContainer"></div>
-  </div>
-  
+    <div class="section">
+        <h2>모닝미팅 포함 여부</h2>
+        <p>모닝미팅 포함 여부를 선택하세요.  (기본값: URL의 `morning` 파라미터, 없으면 True)</p>
+        <select id="morningSelect">
+            <option value="True">True</option>
+            <option value="False">False</option>
+        </select>
+    </div>
+
+    <!-- 메일 발신 여부 섹션 -->
+    <div class="section">
+        <h2>메일 발신 여부</h2>
+        <p>메일 발신 여부를 선택하세요.  (기본값: URL의 `mailingTF` 파라미터, 없으면 True)</p>
+        <select id="mailingSelect">
+            <option value="True">True</option>
+            <option value="False">False</option>
+        </select>
+    </div>
+
+    <!-- 메일 수신자 선택 섹션 -->
+    <div class="section" id="mailReceiverSection">
+        <h2>메일 수신자 선택</h2>
+        <p>메일 수신자들을 선택하세요.  기본 선택은 URL의 `mail_receivers` 파라미터 또는 기본값 "기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"입니다.</p>
+        <div id="mailReceiverContainer"></div>
+    </div>
+
   <button id="submitButton">전송</button>
-  
+
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
@@ -345,26 +358,25 @@
     // 요약 입력 섹션: 세 줄 입력란 및 문자 카운터
     const summaryContainer = document.getElementById("summaryContainer");
     defaultSummaryLines.forEach(function(line, index) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "summary-row";
-      
-      const input = document.createElement("input");
-      input.type = "text";
-      input.className = "summary-line";
-      input.maxLength = 60;
-      input.value = line;
-      input.placeholder = `요약 ${index + 1}번째 줄 (최대 60자)`;
-      
+    const wrapper = document.createElement("div");
+    wrapper.className = "summary-row";
+
+    const textarea = document.createElement("textarea"); // input 대신 textarea
+    textarea.className = "summary-line";
+    textarea.maxLength = 60;
+    textarea.value = line;
+    textarea.placeholder = `요약 ${index + 1}번째 줄 (최대 60자)`;
+
       const counter = document.createElement("span");
       counter.className = "char-counter";
       function updateCounter() {
-        const len = input.value.length;
+        const len = textarea.value.length;
         counter.textContent = `${len}/60`;
       }
       updateCounter();
-      input.addEventListener("input", updateCounter);
+      textarea.addEventListener("input", updateCounter);
       
-      wrapper.appendChild(input);
+      wrapper.appendChild(textarea);
       wrapper.appendChild(counter);
       summaryContainer.appendChild(wrapper);
     });
@@ -377,27 +389,30 @@
     const mailingSelect = document.getElementById("mailingSelect");
     mailingSelect.value = defaultMailingTF;
     
-    // 메일 수신자 체크박스 생성
+   // 메일 수신자 체크박스 생성
     const mailReceiverContainer = document.getElementById("mailReceiverContainer");
+
     function createMailReceiverCheckbox(label, defaultChecked) {
-      const container = document.createElement("div");
-      container.className = "mail-receiver-item";
-      
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = mail_factor[label];
-      checkbox.value = label;
-      if (defaultChecked) checkbox.checked = true;
-      
-      const labelElem = document.createElement("label");
-      labelElem.htmlFor = mail_factor[label];
-      labelElem.textContent = label;
-      
-      container.appendChild(checkbox);
-      container.appendChild(labelElem);
-      mailReceiverContainer.appendChild(container);
+        const container = document.createElement("div");
+        container.className = "mail-receiver-item";
+
+        const labelElem = document.createElement("label"); // 레이블 생성
+        labelElem.htmlFor = mail_factor[label];
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = mail_factor[label];
+        checkbox.value = label;
+        if (defaultChecked) checkbox.checked = true;
+
+        // 체크박스와 텍스트를 레이블 안에 추가
+        labelElem.appendChild(checkbox);
+        labelElem.appendChild(document.createTextNode(label)); // 텍스트 노드 사용
+
+        container.appendChild(labelElem);
+        mailReceiverContainer.appendChild(container);
     }
-    
+
     for (const key in mail_factor) {
       const isDefault = defaultMailReceivers.includes(key);
       createMailReceiverCheckbox(key, isDefault);
