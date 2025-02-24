@@ -32,7 +32,7 @@
       width: 100%;
       box-sizing: border-box;
     }
-    /* 보고서 제목 및 캡쳐 페이지, 기타 입력란은 자동 확장 */
+    /* 보고서 제목, 캡쳐 페이지 등 자동 확장 */
     textarea {
       resize: vertical;
     }
@@ -110,28 +110,29 @@
   <!-- 보고서 제목 섹션 -->
   <div class="section">
     <h2>보고서 제목</h2>
-    <p>보고서 제목을 입력하세요. (기본값은 URL의 <code>report_title</code> 파라미터)</p>
+    <p>보고서 제목을 입력하세요. (기본값: URL의 <code>report_title</code> 파라미터)</p>
     <textarea id="reportTitle" placeholder="보고서 제목"></textarea>
   </div>
 
   <!-- 카테고리 선택 섹션 -->
   <div class="section">
     <h2>카테고리 선택</h2>
-    <p>원하는 카테고리를 선택하세요. (기본값은 URL의 <code>cat_num</code> 파라미터)</p>
+    <p>원하는 카테고리를 선택하세요. (기본값: URL의 <code>cat_num</code> 파라미터)</p>
     <select id="categorySelect"></select>
   </div>
   
   <!-- 대표 애널리스트 선택 섹션 -->
   <div class="section">
     <h2>대표 애널리스트 선택</h2>
-    <p>대표 애널리스트를 선택하세요. (기본값은 URL의 <code>rep</code> 파라미터; 값은 "부서\n이름" 형태)</p>
+    <p>대표 애널리스트를 선택하세요. (기본값: URL의 <code>rep</code> 파라미터; 값은 "부서\n이름" 형태)</p>
     <select id="analystSelect"></select>
   </div>
   
   <!-- 실제 작업자 선택 섹션 -->
   <div class="section">
     <h2>실제 작업자 선택</h2>
-    <p>실제 작업자는 부서와 애널리스트가 연결된 값입니다. 기본값은 URL의 <code>workers</code> 파라미터(쉼표로 구분된 "부서\n이름" 문자열) 또는 기본값으로 지정됩니다. 각 드롭다운 옆의 "-" 버튼으로 제거하고, "+" 버튼으로 추가할 수 있습니다.</p>
+    <p>실제 작업자는 부서와 애널리스트가 연결된 값입니다. 기본값은 URL의 <code>workers</code> 파라미터(쉼표로 구분된 "부서\n이름" 문자열) 또는 기본값으로 지정됩니다.
+       각 드롭다운 옆의 "-" 버튼으로 제거하고, "+" 버튼으로 새 드롭다운을 추가할 수 있습니다.</p>
     <div id="workerContainer"></div>
     <button id="addWorkerButton" type="button">+</button>
   </div>
@@ -139,7 +140,7 @@
   <!-- 캡쳐 페이지 입력 섹션 -->
   <div class="section">
     <h2>캡쳐 페이지</h2>
-    <p>캡쳐 페이지 번호를 입력하세요. (기본값은 URL의 <code>capture_page</code> 파라미터, 없으면 1)</p>
+    <p>캡쳐 페이지 번호를 입력하세요. (기본값: URL의 <code>capture_page</code> 파라미터, 없으면 1)</p>
     <input type="number" id="capturePage" value="1" min="1">
   </div>
   
@@ -153,7 +154,7 @@
   <!-- 모닝미팅 포함 여부 섹션 -->
   <div class="section">
     <h2>모닝미팅 포함 여부</h2>
-    <p>모닝미팅 포함 여부를 선택하세요. (기본값은 URL의 <code>morning</code> 파라미터, 없으면 True)</p>
+    <p>모닝미팅 포함 여부를 선택하세요. (기본값: URL의 <code>morning</code> 파라미터, 없으면 True)</p>
     <select id="morningSelect">
       <option value="True">True</option>
       <option value="False">False</option>
@@ -163,7 +164,7 @@
   <!-- 메일 발신 여부 섹션 -->
   <div class="section">
     <h2>메일 발신 여부</h2>
-    <p>메일 발신 여부를 선택하세요. (기본값은 URL의 <code>mailingTF</code> 파라미터, 없으면 True)</p>
+    <p>메일 발신 여부를 선택하세요. (기본값: URL의 <code>mailingTF</code> 파라미터, 없으면 True)</p>
     <select id="mailingSelect">
       <option value="True">True</option>
       <option value="False">False</option>
@@ -182,13 +183,13 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    
+
     // URL 쿼리 파라미터에서 값을 가져오는 함수
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(param);
     }
-    
+
     // 기본값 설정
     const defaultReportTitle = getQueryParam("report_title") || "기본 보고서 제목";
     const defaultCatNum = parseInt(getQueryParam("cat_num")) || null;
@@ -198,7 +199,7 @@
       ? defaultWorkersParam.split(",").map(s => s.trim()).filter(s => s !== "")
       : ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"];
     const defaultCapturePage = getQueryParam("capture_page") || "1";
-    const defaultSummaryParam = getQueryParam("summary") || 
+    const defaultSummaryParam = getQueryParam("summary") ||
       "24년 완화적인 대출환경으로 주요지역의 완연한 회복세, 수도권 선호지역의 공급부족과 금리상승/대출규제간의 힘겨루기로 상승-소강 반복\n정치지형변화로 세제강화 및 규제 확대와 같은 변수 등장, 지난 규제 강화 시기의 시장/여론 등을 볼 때 보다 제한적이고 범위의 규제 예상\n정책변화/가격레벨/최근 성과 등을 고려할 때 차선호지역 및 공급과잉 해소되는 비수도권 주요지역의 상대성과가 더 높을 수 있음";
     const defaultSummaryLines = defaultSummaryParam.split("\n").map(line => line.trim());
     const defaultMorning = getQueryParam("morning") || "True";
@@ -207,7 +208,7 @@
     const defaultMailReceivers = defaultMailReceiversParam 
           ? defaultMailReceiversParam.split("\n").map(s => s.trim()).filter(s => s !== "")
           : ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"];
-    
+
     // 예제용 데이터
     const categories = [
       {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (1)", number: 1},
@@ -234,7 +235,7 @@
       {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "Global ETF (35)", number: 35},
       {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "이슈분석 (39)", number: 39}
     ];
-    
+
     const dep_n_name = {
       "기업리서치부": [
         "권용수", "김귀연", "김수아", "김유진", "김지혜", "김회재",
@@ -252,8 +253,7 @@
         "박장욱", "배상영", "이혜진", "한송협", "허민호"
       ]
     };
-    
-    // 메일 수신자 체크박스 데이터
+
     const mail_factor = {
       '기관공통 수신자': 'cb_client', 
       '기업 수신자': 'cb_corporate',
@@ -265,11 +265,11 @@
       '[개별자료]투자전략': 'cb_investmentStrategy',
       '[개별자료] MMB(투자전략 자료 or MMB 단독 자료일 경우 선택': 'cb_MMB'
     };
-    
+
     // 보고서 제목 입력
     const reportTitleInput = document.getElementById("reportTitle");
     reportTitleInput.value = defaultReportTitle;
-    
+
     // 카테고리 드롭다운 구성
     const categorySelect = document.getElementById("categorySelect");
     categories.forEach(function(item) {
@@ -281,7 +281,7 @@
     if (defaultCatNum !== null) {
       categorySelect.value = defaultCatNum;
     }
-    
+
     // 대표 애널리스트 드롭다운 구성
     const analystSelect = document.getElementById("analystSelect");
     for (const dept in dep_n_name) {
@@ -298,7 +298,7 @@
     if (defaultRep !== "") {
       analystSelect.value = defaultRep;
     }
-    
+
     // 실제 작업자 섹션: 드롭다운 추가
     const workerContainer = document.getElementById("workerContainer");
     function addWorkerSelect(value) {
@@ -422,7 +422,7 @@
     mailingSelect.addEventListener("change", updateMailReceiverVisibility);
     updateMailReceiverVisibility();
     
-    // "전송" 버튼 클릭 시 모든 값을 수집하여 Telegram으로 전송
+    // "전송" 버튼 클릭 시 모든 값을 수집하여 Telegram으로 전송하고 웹앱 창을 닫음
     document.getElementById("submitButton").addEventListener("click", function() {
       const reportTitle = reportTitleInput.value;
       const selectedCatNum = categorySelect.value;
@@ -458,8 +458,9 @@
         mailReceivers: mailReceivers
       };
       
-      // 웹앱에서 수정한 데이터를 JSON으로 Telegram에 전송
+      // 수정된 데이터를 Telegram으로 전송하고 웹앱 창 닫기
       tg.sendData(JSON.stringify(result));
+      tg.close();
     });
   </script>
 </body>
