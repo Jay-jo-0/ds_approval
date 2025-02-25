@@ -14,12 +14,16 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    console.log("Web App Loaded");
+    
     document.getElementById("sendButton").addEventListener("click", function(event) {
         event.preventDefault();
         const data = document.getElementById("dataField").value;
-        alert("전송할 데이터: " + data);
+        console.log("전송할 데이터:", data);
+        alert("전송할 데이터: " + data);  // alert가 뜨는지 확인
         tg.sendData(data);
-        // tg.close();
+        console.log("tg.sendData() 호출됨");
+        // tg.close();  // 디버깅 시 임시로 주석 처리
     });
   </script>
 </body>
