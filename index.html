@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>최종 결과물 선택 및 수정</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script>
-      Telegram.WebApp.ready(); // 1. Telegram Web App 라이브러리 로드 후 즉시 ready() 호출
-  </script>
   <style>
+    /* (스타일은 이전과 동일하므로 생략) */
     body {
       font-family: Arial, sans-serif;
       margin: 10px;
@@ -112,30 +110,29 @@
 <body>
   <!-- 보고서 제목 섹션 -->
   <div class="section">
-    <h2>보고서 제목ㅍㄴ아ㅣㅓㅇㅍ라ㅓㅣㅇ라ㅣㅓㅜ654</h2>
-    <p>보고서 제목을 입력하세요. (기본값: URL의 <code>report_title</code> 파라미터)</p>
+    <h2>보고서 제목1111111111111111</h2>
+    <p>보고서 제목을 입력하세요.</p>
     <textarea id="reportTitle" placeholder="보고서 제목"></textarea>
   </div>
 
   <!-- 카테고리 선택 섹션 -->
   <div class="section">
     <h2>카테고리 선택</h2>
-    <p>원하는 카테고리를 선택하세요. (기본값: URL의 <code>cat_num</code> 파라미터)</p>
+    <p>원하는 카테고리를 선택하세요.</p>
     <select id="categorySelect"></select>
   </div>
 
   <!-- 대표 애널리스트 선택 섹션 -->
   <div class="section">
     <h2>대표 애널리스트 선택</h2>
-    <p>대표 애널리스트를 선택하세요. (기본값: URL의 <code>rep</code> 파라미터; 값은 "부서\n이름" 형태)</p>
+    <p>대표 애널리스트를 선택하세요.</p>
     <select id="analystSelect"></select>
   </div>
 
   <!-- 실제 작업자 선택 섹션 -->
   <div class="section">
     <h2>실제 작업자 선택</h2>
-    <p>실제 작업자는 부서와 애널리스트가 연결된 값입니다. 기본값은 URL의 <code>workers</code> 파라미터 (쉼표로 구분된 "부서\n이름" 문자열)입니다.
-       각 드롭다운 옆의 "-" 버튼으로 제거하고, "+" 버튼으로 새 드롭다운을 추가할 수 있습니다.</p>
+    <p>실제 작업자를 선택하세요.</p>
     <div id="workerContainer"></div>
     <button id="addWorkerButton" type="button">+</button>
   </div>
@@ -143,21 +140,21 @@
   <!-- 캡쳐 페이지 입력 섹션 -->
   <div class="section">
     <h2>캡쳐 페이지</h2>
-    <p>캡쳐 페이지 번호를 입력하세요. (기본값: URL의 <code>capture_page</code> 파라미터, 없으면 1)</p>
+    <p>캡쳐 페이지 번호를 입력하세요.</p>
     <input type="number" id="capturePage" value="1" min="1">
   </div>
 
   <!-- 요약 수정 섹션 -->
   <div class="section">
     <h2>요약 수정</h2>
-    <p>요약은 세 줄로 구성됩니다. 각 줄을 수정하세요. (각 줄 최대 60자; 오른쪽에 현재 입력한 문자 수/60 표시)</p>
+    <p>요약은 세 줄로 구성됩니다. 각 줄을 수정하세요. (각 줄 최대 60자)</p>
     <div id="summaryContainer"></div>
   </div>
 
   <!-- 모닝미팅 포함 여부 섹션 -->
   <div class="section">
     <h2>모닝미팅 포함 여부</h2>
-    <p>모닝미팅 포함 여부를 선택하세요. (기본값: URL의 <code>morning</code> 파라미터, 없으면 True)</p>
+    <p>모닝미팅 포함 여부를 선택하세요.</p>
     <select id="morningSelect">
       <option value="True">True</option>
       <option value="False">False</option>
@@ -167,7 +164,7 @@
   <!-- 메일 발신 여부 섹션 -->
   <div class="section">
     <h2>메일 발신 여부</h2>
-    <p>메일 발신 여부를 선택하세요. (기본값: URL의 <code>mailingTF</code> 파라미터, 없으면 True)</p>
+    <p>메일 발신 여부를 선택하세요.</p>
     <select id="mailingSelect">
       <option value="True">True</option>
       <option value="False">False</option>
@@ -177,7 +174,7 @@
   <!-- 메일 수신자 선택 섹션 -->
   <div class="section" id="mailReceiverSection">
     <h2>메일 수신자 선택</h2>
-    <p>메일 수신자들을 선택하세요. (기본 선택: URL의 <code>mail_receivers</code> 파라미터 또는 기본값 "기관공통 수신자", "기타공통 수신자", "리서치센터 수신자")</p>
+    <p>메일 수신자들을 선택하세요.</p>
     <div id="mailReceiverContainer"></div>
   </div>
 
@@ -185,32 +182,41 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // URL 쿼리 파라미터 가져오기
+    // URL 쿼리 파라미터 가져오기 (getQueryParam 함수는 이전과 동일)
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(param);
     }
 
-    // 기본값 설정
-    const defaultReportTitle = getQueryParam("report_title") || "기본 보고서 제목";
-    const defaultCatNum = parseInt(getQueryParam("cat_num")) || null;
-    const defaultRep = getQueryParam("rep") || "";
-    const defaultWorkersParam = getQueryParam("workers") || "";
-    const defaultWorkers = defaultWorkersParam
-      ? defaultWorkersParam.split(",").map(s => s.trim()).filter(s => s !== "")
-      : ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"];
-    const defaultCapturePage = getQueryParam("capture_page") || "1";
-    const defaultSummaryParam = getQueryParam("summary") ||
-      "24년 완화적인 대출환경으로 주요지역의 완연한 회복세, 수도권 선호지역의 공급부족과 금리상승/대출규제간의 힘겨루기로 상승-소강 반복\n정치지형변화로 세제강화 및 규제 확대와 같은 변수 등장, 지난 규제 강화 시기의 시장/여론 등을 볼 때 보다 제한적이고 범위의 규제 예상\n정책변화/가격레벨/최근 성과 등을 고려할 때 차선호지역 및 공급과잉 해소되는 비수도권 주요지역의 상대성과가 더 높을 수 있음";
-    const defaultSummaryLines = defaultSummaryParam.split("\n").map(line => line.trim());
-    const defaultMorning = getQueryParam("morning") || "True";
-    const defaultMailingTF = getQueryParam("mailingTF") || "True";
-    const defaultMailReceiversParam = getQueryParam("mail_receivers") || "";
-    const defaultMailReceivers = defaultMailReceiversParam
-          ? defaultMailReceiversParam.split("\n").map(s => s.trim()).filter(s => s !== "")
-          : ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"];
+    // 1. 초기 데이터 가져오기 (Telegram.WebApp.initDataUnsafe 또는 URL 파라미터)
+    let initData = {};
+    try {
+        initData = Telegram.WebApp.initDataUnsafe || {};
+    } catch (e) {
+      console.error("initDataUnsafe를 가져오는 중 오류 발생:", e);
+    }
 
-    // 예제용 데이터
+    // initDataUnsafe가 비어있을 경우 URL 파라미터에서 데이터 가져오기
+    const reportTitle = getQueryParam("report_title") || initData.reportTitle || "";
+    const catNum = parseInt(getQueryParam("cat_num") || initData.category?.number, 10);
+    const rep = getQueryParam("rep") || initData.representativeAnalyst || "";
+    const workersParam = getQueryParam("workers") || "";  // workers는 URL 파라미터로만
+    const workers = workersParam
+      ? workersParam.split(",").map(s => s.trim()).filter(s => s !== "")
+      : (initData.actualWorkers || ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"]);
+    const capturePage = getQueryParam("capture_page") || initData.capturePage || "1";
+    const summaryParam = getQueryParam("summary") || initData.summary ||
+          "24년 완화적인 대출환경으로 주요지역의 완연한 회복세, 수도권 선호지역의 공급부족과 금리상승/대출규제간의 힘겨루기로 상승-소강 반복\n정치지형변화로 세제강화 및 규제 확대와 같은 변수 등장, 지난 규제 강화 시기의 시장/여론 등을 볼 때 보다 제한적이고 범위의 규제 예상\n정책변화/가격레벨/최근 성과 등을 고려할 때 차선호지역 및 공급과잉 해소되는 비수도권 주요지역의 상대성과가 더 높을 수 있음";
+    const summaryLines = summaryParam.split("\n").map(line => line.trim());
+    const morning = getQueryParam("morning") || initData.morningMeeting || "True";
+    const mailingTF = getQueryParam("mailingTF") || initData.mailingTF || "True";
+    const mailReceiversParam = getQueryParam("mail_receivers") || ""; // mail_receivers는 URL 파라미터
+    const mailReceivers = mailReceiversParam
+          ? mailReceiversParam.split("\n").map(s => s.trim()).filter(s => s !== "")
+          : (initData.mailReceivers?.split("\n").map(s => s.trim()).filter(s=> s!=="") || ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"]);
+
+
+    // 데이터 객체
     const categories = [
       {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (1)", number: 1},
       {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (2)", number: 2},
@@ -267,28 +273,42 @@
       '[개별자료] MMB(투자전략 자료 or MMB 단독 자료일 경우 선택': 'cb_MMB'
     };
 
-    // 보고서 제목 입력
-    const reportTitleInput = document.getElementById("reportTitle");
-    reportTitleInput.value = defaultReportTitle;
 
-    // 카테고리 드롭다운 구성
+    // UI 요소 가져오기
+    const reportTitleInput = document.getElementById("reportTitle");
     const categorySelect = document.getElementById("categorySelect");
-    categories.forEach(function(item) {
+    const analystSelect = document.getElementById("analystSelect");
+    const workerContainer = document.getElementById("workerContainer");
+    const addWorkerButton = document.getElementById("addWorkerButton");
+    const capturePageInput = document.getElementById("capturePage");
+    const summaryContainer = document.getElementById("summaryContainer");
+    const morningSelect = document.getElementById("morningSelect");
+    const mailingSelect = document.getElementById("mailingSelect");
+    const mailReceiverContainer = document.getElementById("mailReceiverContainer");
+
+
+    // 2. UI 초기화 및 이벤트 핸들러 설정
+
+    // 보고서 제목
+    reportTitleInput.value = reportTitle;
+
+   // 카테고리
+    categories.forEach(item => {
       const option = document.createElement("option");
       option.value = item.number;
       option.text = `${item.dept} - ${item.subcategory}: ${item.text}`;
       categorySelect.appendChild(option);
     });
-    if (defaultCatNum !== null) {
-      categorySelect.value = defaultCatNum;
+    if (catNum) {
+        categorySelect.value = catNum;
     }
 
-    // 대표 애널리스트 드롭다운 구성
-    const analystSelect = document.getElementById("analystSelect");
+
+    // 대표 애널리스트
     for (const dept in dep_n_name) {
       const optgroup = document.createElement("optgroup");
       optgroup.label = dept;
-      dep_n_name[dept].forEach(function(name) {
+      dep_n_name[dept].forEach(name => {
         const option = document.createElement("option");
         option.value = `${dept}\n${name}`;
         option.text = name;
@@ -296,12 +316,11 @@
       });
       analystSelect.appendChild(optgroup);
     }
-    if (defaultRep !== "") {
-      analystSelect.value = defaultRep;
+    if (rep) {
+      analystSelect.value = rep;
     }
 
-    // 실제 작업자 섹션: 드롭다운 추가
-    const workerContainer = document.getElementById("workerContainer");
+    // 실제 작업자
     function addWorkerSelect(value) {
       const row = document.createElement("div");
       row.className = "worker-row";
@@ -311,7 +330,7 @@
       for (const dept in dep_n_name) {
         const optgroup = document.createElement("optgroup");
         optgroup.label = dept;
-        dep_n_name[dept].forEach(function(name) {
+        dep_n_name[dept].forEach(name => {
           const option = document.createElement("option");
           option.value = `${dept}\n${name}`;
           option.text = name;
@@ -327,7 +346,7 @@
       removeBtn.type = "button";
       removeBtn.className = "remove-button";
       removeBtn.textContent = "-";
-      removeBtn.addEventListener("click", function() {
+      removeBtn.addEventListener("click", () => {
         workerContainer.removeChild(row);
       });
 
@@ -336,25 +355,20 @@
       workerContainer.appendChild(row);
     }
 
-    if (defaultWorkers.length > 0) {
-      defaultWorkers.forEach(function(worker) {
-        addWorkerSelect(worker);
-      });
+    if (workers.length > 0) {
+        workers.forEach(worker => {
+          addWorkerSelect(worker);
+        });
     } else {
       addWorkerSelect("");
     }
+    addWorkerButton.addEventListener("click", () => addWorkerSelect(""));
 
-    document.getElementById("addWorkerButton").addEventListener("click", function() {
-      addWorkerSelect("");
-    });
+    // 캡쳐 페이지
+    capturePageInput.value = capturePage;
 
-    // 캡쳐 페이지 입력
-    const capturePageInput = document.getElementById("capturePage");
-    capturePageInput.value = defaultCapturePage;
-
-    // 요약 입력 섹션: 세 줄 textarea와 문자 카운터
-    const summaryContainer = document.getElementById("summaryContainer");
-    defaultSummaryLines.forEach(function(line, index) {
+    // 요약
+    summaryLines.forEach((line, index) => {
       const wrapper = document.createElement("div");
       wrapper.className = "summary-row";
 
@@ -367,8 +381,7 @@
       const counter = document.createElement("span");
       counter.className = "char-counter";
       function updateCounter() {
-        const len = textarea.value.length;
-        counter.textContent = `${len}/60`;
+        counter.textContent = `${textarea.value.length}/60`;
       }
       updateCounter();
       textarea.addEventListener("input", updateCounter);
@@ -378,103 +391,64 @@
       summaryContainer.appendChild(wrapper);
     });
 
-    // 모닝미팅 여부 선택
-    const morningSelect = document.getElementById("morningSelect");
-    morningSelect.value = defaultMorning;
+    // 모닝미팅 여부
+    morningSelect.value = morning;
 
-    // 메일 발신 여부 선택
-    const mailingSelect = document.getElementById("mailingSelect");
-    mailingSelect.value = defaultMailingTF;
+    // 메일 발신 여부
+    mailingSelect.value = mailingTF;
 
-    // 메일 수신자 체크박스 생성
-    const mailReceiverContainer = document.getElementById("mailReceiverContainer");
-    function createMailReceiverCheckbox(label, defaultChecked) {
-      const container = document.createElement("div");
-      container.className = "mail-receiver-item";
+    // 메일 수신자
+        function createMailReceiverCheckbox(label, defaultChecked) {
+          const container = document.createElement("div");
+          container.className = "mail-receiver-item";
 
-      const labelElem = document.createElement("label");
-      labelElem.htmlFor = mail_factor[label];
+          const labelElem = document.createElement("label");
+          labelElem.htmlFor = mail_factor[label];
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = mail_factor[label];
-      checkbox.value = label;
-      if (defaultChecked) checkbox.checked = true;
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = mail_factor[label];
+          checkbox.value = label;
+          if (defaultChecked) checkbox.checked = true;
 
-      labelElem.appendChild(checkbox);
-      labelElem.appendChild(document.createTextNode(label));
+          labelElem.appendChild(checkbox);
+          labelElem.appendChild(document.createTextNode(label));
 
-      container.appendChild(labelElem);
-      mailReceiverContainer.appendChild(container);
-    }
-
+          container.appendChild(labelElem);
+          mailReceiverContainer.appendChild(container);
+        }
     for (const key in mail_factor) {
-      const isDefault = defaultMailReceivers.includes(key);
-      createMailReceiverCheckbox(key, isDefault);
+       const isDefault = mailReceivers.includes(key)
+       createMailReceiverCheckbox(key, isDefault);
     }
 
     function updateMailReceiverVisibility() {
-      if (mailingSelect.value === "True") {
-        document.getElementById("mailReceiverSection").style.display = "block";
-      } else {
-        document.getElementById("mailReceiverSection").style.display = "none";
-      }
+        mailReceiverSection.style.display = mailingSelect.value === "True" ? "block" : "none";
     }
     mailingSelect.addEventListener("change", updateMailReceiverVisibility);
     updateMailReceiverVisibility();
 
 
-    // 2. Telegram.WebApp.MainButton 사용, 이벤트 핸들러 연결
-    const submitButton = Telegram.WebApp.MainButton; // MainButton 사용
-    submitButton.text = "전송"; // 버튼 텍스트
-    submitButton.show();       // 버튼 표시
-
-    submitButton.onClick(function() {  // onClick 핸들러
-      const reportTitle = reportTitleInput.value;
-      const selectedCatNum = categorySelect.value;
-      const selectedCategory = categories.find(item => item.number == selectedCatNum);
-      const selectedAnalyst = analystSelect.value;
-      const workerSelects = document.querySelectorAll(".worker-select");
-      const workers = Array.from(workerSelects)
-                        .map(select => select.value)
-                        .filter(val => val.trim() !== "");
-      const capturePage = capturePageInput.value;
-      const summaryInputs = document.querySelectorAll(".summary-line");
-      const summary = Array.from(summaryInputs)
-                        .map(textarea => textarea.value.trim())
-                        .join("\n");
-      const morningMeeting = morningSelect.value;
-      const mailingTF = mailingSelect.value;
-
-      const mailCheckboxes = document.querySelectorAll("#mailReceiverContainer input[type='checkbox']");
-      const mailReceivers = Array.from(mailCheckboxes)
-                            .filter(cb => cb.checked)
-                            .map(cb => cb.value)
-                            .join("\n");
-
-      const result = {
-        reportTitle: reportTitle,
-        category: selectedCategory,
-        representativeAnalyst: selectedAnalyst,
-        actualWorkers: workers,
-        capturePage: capturePage,
-        summary: summary,
-        morningMeeting: morningMeeting,
-        mailingTF: mailingTF,
-        mailReceivers: mailReceivers
+    // 3. 전송 버튼 이벤트 핸들러
+    const submitButton = Telegram.WebApp.MainButton;
+    submitButton.text = "전송";
+    submitButton.show();
+    submitButton.onClick(() => {
+      const data = {
+          reportTitle: reportTitleInput.value,
+          category: categories.find(item => item.number == categorySelect.value),
+          representativeAnalyst: analystSelect.value,
+          actualWorkers: Array.from(document.querySelectorAll(".worker-select")).map(select => select.value).filter(val => val.trim() !== ""),
+          capturePage: capturePageInput.value,
+          summary: Array.from(document.querySelectorAll(".summary-line")).map(textarea => textarea.value.trim()).join("\n"),
+          morningMeeting: morningSelect.value,
+          mailingTF: mailingSelect.value,
+          mailReceivers: Array.from(document.querySelectorAll("#mailReceiverContainer input[type='checkbox']:checked")).map(cb => cb.value).join("\n")
       };
 
-      // 디버깅 로그: 전송될 데이터 출력
-      console.log("전송할 데이터:", JSON.stringify(result));
-
-      // 전송 후 데이터 JSON으로 Telegram에 보내고 창 닫기
-      Telegram.WebApp.sendData(JSON.stringify(result));  // 3. 데이터 전송
-      Telegram.WebApp.close(); // 4. 웹앱 닫기
+      console.log("전송할 데이터:", JSON.stringify(data)); // 디버깅
+      Telegram.WebApp.sendData(JSON.stringify(data));
     });
-
-
-     Telegram.WebApp.expand();
-
   </script>
 </body>
 </html>
