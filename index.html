@@ -109,8 +109,8 @@
 <body>
   <!-- 보고서 제목 섹션 -->
   <div class="section">
-    <h2>보고서 제목</h2>
-    <p>보고서 제목을 입력하세요. (기본값: URL의 <code>report_title</code> 파라미터)</p>
+    <h2>보고서 제목_11111111</h2>
+    <p>보고서 제목을 13342134314입력하세요. (기본값: URL의 <code>report_title</code> 파라미터)</p>
     <textarea id="reportTitle" placeholder="보고서 제목"></textarea>
   </div>
 
@@ -424,48 +424,12 @@
     updateMailReceiverVisibility();
     
     // "전송" 버튼 클릭 시 모든 값을 수집하여 Telegram으로 전송 후 웹앱 창 닫기
-    document.getElementById("submitButton").addEventListener("click", function() {
-      const reportTitle = reportTitleInput.value;
-      const selectedCatNum = categorySelect.value;
-      const selectedCategory = categories.find(item => item.number == selectedCatNum);
-      const selectedAnalyst = analystSelect.value;
-      const workerSelects = document.querySelectorAll(".worker-select");
-      const workers = Array.from(workerSelects)
-                        .map(select => select.value)
-                        .filter(val => val.trim() !== "");
-      const capturePage = capturePageInput.value;
-      const summaryInputs = document.querySelectorAll(".summary-line");
-      const summary = Array.from(summaryInputs)
-                        .map(textarea => textarea.value.trim())
-                        .join("\n");
-      const morningMeeting = morningSelect.value;
-      const mailingTF = mailingSelect.value;
-      
-      const mailCheckboxes = document.querySelectorAll("#mailReceiverContainer input[type='checkbox']");
-      const mailReceivers = Array.from(mailCheckboxes)
-                            .filter(cb => cb.checked)
-                            .map(cb => cb.value)
-                            .join("\n");
-      
-      const result = {
-        reportTitle: reportTitle,
-        category: selectedCategory,
-        representativeAnalyst: selectedAnalyst,
-        actualWorkers: workers,
-        capturePage: capturePage,
-        summary: summary,
-        morningMeeting: morningMeeting,
-        mailingTF: mailingTF,
-        mailReceivers: mailReceivers
-      };
-
-      // 디버깅 로그: 전송될 데이터 출력
-      console.log("전송할 데이터:", JSON.stringify(result));
-      
-      // 전송 후 데이터 JSON으로 Telegram에 보내고 창 닫기
-      tg.sendData(JSON.stringify(result));
-      tg.close();
-    });
+  document.getElementById("submitButton").addEventListener("click", function() {
+    const testData = { message: "This is a test message." };
+    console.log("전송할 데이터:", JSON.stringify(testData));
+    tg.sendData(JSON.stringify(testData));
+    tg.close();
+  });
   </script>
 </body>
 </html>
