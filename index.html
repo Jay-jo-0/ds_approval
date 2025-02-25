@@ -107,13 +107,8 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    
-    // URL 파라미터로부터 기본값 읽기
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
-    }
-    
+  
+    // URL 파라미터로부터 기본값 읽기 (생략 - 이전 코드와 동일) ...
     const defaultReportTitle = getQueryParam("report_title") || "기본 보고서 제목";
     const defaultCatNum = parseInt(getQueryParam("cat_num")) || null;
     const defaultRep = getQueryParam("rep") || "";
@@ -131,8 +126,8 @@
     const defaultMailReceivers = defaultMailReceiversParam
       ? defaultMailReceiversParam.split("\n").map(s => s.trim()).filter(s => s !== "")
       : ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"];
-    
-    // 예제용 데이터 (실제 값과 동일)
+  
+    // 예제용 데이터 (실제 값과 동일) (생략 - 이전 코드와 동일) ...
     const categories = [
       {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (1)", number: 1},
       {dept: "기업리서치부", subcategory: "기업/산업뉴스", text: "산업분석 (2)", number: 2},
@@ -158,7 +153,7 @@
       {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "Global ETF (35)", number: 35},
       {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "이슈분석 (39)", number: 39}
     ];
-    
+  
     const dep_n_name = {
       "기업리서치부": [
         "권용수", "김귀연", "김수아", "김유진", "김지혜", "김회재",
@@ -176,9 +171,9 @@
         "박장욱", "배상영", "이혜진", "한송협", "허민호"
       ]
     };
-    
+  
     const mail_factor = {
-      '기관공통 수신자': 'cb_client', 
+      '기관공통 수신자': 'cb_client',
       '기업 수신자': 'cb_corporate',
       '기타공통 수신자': 'cb_etc',
       '내 인물 수신자': 'cb_my',
@@ -188,10 +183,9 @@
       '[개별자료]투자전략': 'cb_investmentStrategy',
       '[개별자료] MMB(투자전략 자료 or MMB 단독 자료일 경우 선택': 'cb_MMB'
     };
-    
-    // 각 입력 필드에 기본값 채우기
+      // 각 입력 필드에 기본값 채우기 (생략 - 이전 코드와 동일) ...
     document.getElementById("reportTitle").value = defaultReportTitle;
-    
+  
     const categorySelect = document.getElementById("categorySelect");
     categories.forEach(function(item) {
       const option = document.createElement("option");
@@ -202,7 +196,7 @@
     if (defaultCatNum !== null) {
       categorySelect.value = defaultCatNum;
     }
-    
+  
     const analystSelect = document.getElementById("analystSelect");
     for (const dept in dep_n_name) {
       const optgroup = document.createElement("optgroup");
@@ -218,12 +212,12 @@
     if (defaultRep !== "") {
       analystSelect.value = defaultRep;
     }
-    
+  
     const workerContainer = document.getElementById("workerContainer");
     function addWorkerSelect(value) {
       const row = document.createElement("div");
       row.className = "worker-row";
-      
+  
       const select = document.createElement("select");
       select.className = "worker-select";
       for (const dept in dep_n_name) {
@@ -261,9 +255,9 @@
     document.getElementById("addWorkerButton").addEventListener("click", function() {
       addWorkerSelect("");
     });
-    
+  
     document.getElementById("capturePage").value = defaultCapturePage;
-    
+  
     const summaryContainer = document.getElementById("summaryContainer");
     defaultSummaryLines.forEach(function(line, index) {
       const wrapper = document.createElement("div");
@@ -285,10 +279,10 @@
       wrapper.appendChild(counter);
       summaryContainer.appendChild(wrapper);
     });
-    
+  
     document.getElementById("morningSelect").value = defaultMorning;
     document.getElementById("mailingSelect").value = defaultMailingTF;
-    
+  
     const mailReceiverContainer = document.getElementById("mailReceiverContainer");
     function createMailReceiverCheckbox(label, defaultChecked) {
       const container = document.createElement("div");
@@ -318,7 +312,72 @@
     }
     document.getElementById("mailingSelect").addEventListener("change", updateMailReceiverVisibility);
     updateMailReceiverVisibility();
-    
+  
+  
+    // 봇 토큰과 채팅 ID (실제 값으로 바꿔야 함!)
+    const botToken = 'YOUR_BOT_TOKEN';
+    const chatId = 'TARGET_CHAT_ID';
+  
+  
+    // 텔레그램으로 메시지 보내는 함수
+    function sendMessage(chatId, text) {
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+  
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text,
+          parse_mode: 'Markdown', // 서식 지정을 위해 Markdown 사용
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        if (data.ok) {
+            Telegram.WebApp.close(); // 성공 시 웹앱 닫기
+        } else {
+            // 텔레그램 API 에러 처리
+            alert(`메시지 전송 실패: ${data.description}`);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert('메시지 전송 중 오류 발생'); // 사용자에게 오류 알림
+      });
+    }
+  
+  
+    // 데이터를 포맷팅하는 함수
+    function formatData(data) {
+        let workers = data.workers.map(worker => {
+          const [dept, name] = worker.split('\n');
+          return `  - *부서:* ${dept}, *이름:* ${name}`;
+        }).join('\n');
+  
+        let receivers = data.mail_receivers.join(', ');
+  
+        let formattedText = `
+  *보고서 제목:* ${data.report_title}
+  *카테고리 번호:* ${data.cat_num}
+  *대표 애널리스트:* ${data.rep.replace('\n', ' - ')}
+  *작업자:*
+  ${workers}
+  *캡쳐 페이지:* ${data.capture_page}
+  *요약:*
+  ${data.summary}
+  *모닝미팅 포함 여부:* ${data.morning}
+  *메일 발신 여부:* ${data.mailingTF}
+  *메일 수신자:* ${receivers}
+  `;
+      return formattedText;
+    }
+  
+  
+  
     // 공식 예제처럼 Telegram.WebApp.MainButton 사용: 버튼 텍스트 설정 및 클릭 이벤트 등록
     Telegram.WebApp.MainButton.setText("전송");
     Telegram.WebApp.MainButton.show();
@@ -340,9 +399,12 @@
                               .filter(cb => cb.checked)
                               .map(cb => cb.value)
       };
-      console.log("전송할 데이터:", JSON.stringify(result));
-      Telegram.WebApp.sendData(JSON.stringify(result));
-      Telegram.WebApp.close();
+  
+        const formattedMessage = formatData(result);
+        // Telegram.WebApp.sendData(JSON.stringify(result));  // sendData 주석 처리
+        sendMessage(chatId, formattedMessage); // 텔레그램 봇 API로 전송
+  
+      // Telegram.WebApp.close();  // sendMessage 에서 처리.
     });
   </script>
 </body>
