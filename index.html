@@ -183,6 +183,7 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    Telegram.WebApp.ready(); // 추가
 
     // URL 쿼리 파라미터 가져오기
     function getQueryParam(param) {
