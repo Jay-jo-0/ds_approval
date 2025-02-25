@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>최종 결과물 선택 및 수정</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+      Telegram.WebApp.ready(); // 1. Telegram Web App 라이브러리 로드 후 즉시 ready() 호출
+  </script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -109,8 +112,8 @@
 <body>
   <!-- 보고서 제목 섹션 -->
   <div class="section">
-    <h2>보고서 제목ㅁㄴㅇㄻㄴㅇㄹ</h2>
-    <p>보고서 제목을 입력하세요ㅁㄴㅇㄻㄴㅇㄹ. (기본값: URL의 <code>report_title</code> 파라미터)</p>
+    <h2>보고서 제목ㅍㄴ아ㅣㅓㅇㅍ라ㅓㅣㅇ라ㅣㅓㅜ654</h2>
+    <p>보고서 제목을 입력하세요. (기본값: URL의 <code>report_title</code> 파라미터)</p>
     <textarea id="reportTitle" placeholder="보고서 제목"></textarea>
   </div>
 
@@ -178,8 +181,6 @@
     <div id="mailReceiverContainer"></div>
   </div>
 
-  <button id="submitButton">전송</button>
-
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
@@ -195,17 +196,17 @@
     const defaultCatNum = parseInt(getQueryParam("cat_num")) || null;
     const defaultRep = getQueryParam("rep") || "";
     const defaultWorkersParam = getQueryParam("workers") || "";
-    const defaultWorkers = defaultWorkersParam 
+    const defaultWorkers = defaultWorkersParam
       ? defaultWorkersParam.split(",").map(s => s.trim()).filter(s => s !== "")
       : ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"];
     const defaultCapturePage = getQueryParam("capture_page") || "1";
-    const defaultSummaryParam = getQueryParam("summary") || 
+    const defaultSummaryParam = getQueryParam("summary") ||
       "24년 완화적인 대출환경으로 주요지역의 완연한 회복세, 수도권 선호지역의 공급부족과 금리상승/대출규제간의 힘겨루기로 상승-소강 반복\n정치지형변화로 세제강화 및 규제 확대와 같은 변수 등장, 지난 규제 강화 시기의 시장/여론 등을 볼 때 보다 제한적이고 범위의 규제 예상\n정책변화/가격레벨/최근 성과 등을 고려할 때 차선호지역 및 공급과잉 해소되는 비수도권 주요지역의 상대성과가 더 높을 수 있음";
     const defaultSummaryLines = defaultSummaryParam.split("\n").map(line => line.trim());
     const defaultMorning = getQueryParam("morning") || "True";
     const defaultMailingTF = getQueryParam("mailingTF") || "True";
     const defaultMailReceiversParam = getQueryParam("mail_receivers") || "";
-    const defaultMailReceivers = defaultMailReceiversParam 
+    const defaultMailReceivers = defaultMailReceiversParam
           ? defaultMailReceiversParam.split("\n").map(s => s.trim()).filter(s => s !== "")
           : ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"];
 
@@ -235,7 +236,7 @@
       {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "Global ETF (35)", number: 35},
       {dept: "마켓전략실", subcategory: "글로벌 투자전략", text: "이슈분석 (39)", number: 39}
     ];
-    
+
     const dep_n_name = {
       "기업리서치부": [
         "권용수", "김귀연", "김수아", "김유진", "김지혜", "김회재",
@@ -255,7 +256,7 @@
     };
 
     const mail_factor = {
-      '기관공통 수신자': 'cb_client', 
+      '기관공통 수신자': 'cb_client',
       '기업 수신자': 'cb_corporate',
       '기타공통 수신자': 'cb_etc',
       '내 인물 수신자': 'cb_my',
@@ -304,7 +305,7 @@
     function addWorkerSelect(value) {
       const row = document.createElement("div");
       row.className = "worker-row";
-      
+
       const select = document.createElement("select");
       select.className = "worker-select";
       for (const dept in dep_n_name) {
@@ -321,7 +322,7 @@
       if (value) {
         select.value = value;
       }
-      
+
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
       removeBtn.className = "remove-button";
@@ -329,12 +330,12 @@
       removeBtn.addEventListener("click", function() {
         workerContainer.removeChild(row);
       });
-      
+
       row.appendChild(select);
       row.appendChild(removeBtn);
       workerContainer.appendChild(row);
     }
-    
+
     if (defaultWorkers.length > 0) {
       defaultWorkers.forEach(function(worker) {
         addWorkerSelect(worker);
@@ -342,27 +343,27 @@
     } else {
       addWorkerSelect("");
     }
-    
+
     document.getElementById("addWorkerButton").addEventListener("click", function() {
       addWorkerSelect("");
     });
-    
+
     // 캡쳐 페이지 입력
     const capturePageInput = document.getElementById("capturePage");
     capturePageInput.value = defaultCapturePage;
-    
+
     // 요약 입력 섹션: 세 줄 textarea와 문자 카운터
     const summaryContainer = document.getElementById("summaryContainer");
     defaultSummaryLines.forEach(function(line, index) {
       const wrapper = document.createElement("div");
       wrapper.className = "summary-row";
-      
+
       const textarea = document.createElement("textarea");
       textarea.className = "summary-line";
       textarea.maxLength = 60;
       textarea.value = line;
       textarea.placeholder = `요약 ${index + 1}번째 줄 (최대 60자)`;
-      
+
       const counter = document.createElement("span");
       counter.className = "char-counter";
       function updateCounter() {
@@ -371,47 +372,47 @@
       }
       updateCounter();
       textarea.addEventListener("input", updateCounter);
-      
+
       wrapper.appendChild(textarea);
       wrapper.appendChild(counter);
       summaryContainer.appendChild(wrapper);
     });
-    
+
     // 모닝미팅 여부 선택
     const morningSelect = document.getElementById("morningSelect");
     morningSelect.value = defaultMorning;
-    
+
     // 메일 발신 여부 선택
     const mailingSelect = document.getElementById("mailingSelect");
     mailingSelect.value = defaultMailingTF;
-    
+
     // 메일 수신자 체크박스 생성
     const mailReceiverContainer = document.getElementById("mailReceiverContainer");
     function createMailReceiverCheckbox(label, defaultChecked) {
       const container = document.createElement("div");
       container.className = "mail-receiver-item";
-      
+
       const labelElem = document.createElement("label");
       labelElem.htmlFor = mail_factor[label];
-      
+
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.id = mail_factor[label];
       checkbox.value = label;
       if (defaultChecked) checkbox.checked = true;
-      
+
       labelElem.appendChild(checkbox);
       labelElem.appendChild(document.createTextNode(label));
-      
+
       container.appendChild(labelElem);
       mailReceiverContainer.appendChild(container);
     }
-    
+
     for (const key in mail_factor) {
       const isDefault = defaultMailReceivers.includes(key);
       createMailReceiverCheckbox(key, isDefault);
     }
-    
+
     function updateMailReceiverVisibility() {
       if (mailingSelect.value === "True") {
         document.getElementById("mailReceiverSection").style.display = "block";
@@ -421,9 +422,14 @@
     }
     mailingSelect.addEventListener("change", updateMailReceiverVisibility);
     updateMailReceiverVisibility();
-    
-    // "전송" 버튼 클릭 시 모든 값을 수집하여 Telegram으로 전송 후 웹앱 창 닫기
-    document.getElementById("submitButton").addEventListener("click", function() {
+
+
+    // 2. Telegram.WebApp.MainButton 사용, 이벤트 핸들러 연결
+    const submitButton = Telegram.WebApp.MainButton; // MainButton 사용
+    submitButton.text = "전송"; // 버튼 텍스트
+    submitButton.show();       // 버튼 표시
+
+    submitButton.onClick(function() {  // onClick 핸들러
       const reportTitle = reportTitleInput.value;
       const selectedCatNum = categorySelect.value;
       const selectedCategory = categories.find(item => item.number == selectedCatNum);
@@ -439,13 +445,13 @@
                         .join("\n");
       const morningMeeting = morningSelect.value;
       const mailingTF = mailingSelect.value;
-      
+
       const mailCheckboxes = document.querySelectorAll("#mailReceiverContainer input[type='checkbox']");
       const mailReceivers = Array.from(mailCheckboxes)
                             .filter(cb => cb.checked)
                             .map(cb => cb.value)
                             .join("\n");
-      
+
       const result = {
         reportTitle: reportTitle,
         category: selectedCategory,
@@ -460,11 +466,15 @@
 
       // 디버깅 로그: 전송될 데이터 출력
       console.log("전송할 데이터:", JSON.stringify(result));
-      
+
       // 전송 후 데이터 JSON으로 Telegram에 보내고 창 닫기
-      tg.sendData(JSON.stringify(result));
-      tg.close();
+      Telegram.WebApp.sendData(JSON.stringify(result));  // 3. 데이터 전송
+      Telegram.WebApp.close(); // 4. 웹앱 닫기
     });
+
+
+     Telegram.WebApp.expand();
+
   </script>
 </body>
 </html>
