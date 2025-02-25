@@ -8,7 +8,7 @@
 </head>
 <body>
   <textarea id="dataField" rows="10" style="width:100%;">
-{"report_title": "테스트 반영 제목", "cat_num": 27, "rep": "FICC리서치부\n조재운", "workers": ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"], "capture_page": 1, "summary": "테스트 요약", "morning": true, "mailingTF": true, "mail_receivers": ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"]}
+{"report_title": "테스트 주석 제목", "cat_num": 27, "rep": "FICC리서치부\n조재운", "workers": ["FICC리서치부\n조재운", "장기전략리서치부\n공동락"], "capture_page": 1, "summary": "테스트 요약", "morning": true, "mailingTF": true, "mail_receivers": ["기관공통 수신자", "기타공통 수신자", "리서치센터 수신자"]}
   </textarea>
   <button id="sendButton">전송</button>
   <script>
@@ -19,7 +19,7 @@
         const data = document.getElementById("dataField").value;
         alert("전송할 데이터: " + data);
         tg.sendData(data);
-        tg.close();
+        // tg.close();
     });
   </script>
 </body>
